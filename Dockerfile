@@ -1,20 +1,15 @@
 FROM python:3.10-slim
 
-# 设置工作目录
 WORKDIR /app
 
-# 1. 先把 requirements.txt 复制进去
+# 先拷贝 requirements.txt
 COPY requirements.txt .
 
-# 2. 直接安装依赖，不使用清华镜像，避免 403 错误
-# 也不要搞什么 --index-url，让 pip 自动去官方源下载是最稳的
-RUN pip install --no-cache-dir -r requirements.txt
+# 关键在这里：指定额外的 index-url 给 torch
+RUN pip install --no-cache-dir -r requirements.txt --index-url https://download.pytorch.org/whl/cpu
 
-# 3. 复制剩余所有代码
+# 拷贝你的源代码
 COPY . .
 
-# 4. 暴露 80 端口
 EXPOSE 80
-
-# 5. 启动服务
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "80"]
+CMD ["python", "main.py"]
